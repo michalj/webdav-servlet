@@ -1,10 +1,5 @@
 package net.sf.webdav.methods;
 
-import java.io.PrintWriter;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import net.sf.webdav.ITransaction;
 import net.sf.webdav.IWebdavStore;
 import net.sf.webdav.StoredObject;
@@ -12,10 +7,13 @@ import net.sf.webdav.WebdavStatus;
 import net.sf.webdav.locking.LockedObject;
 import net.sf.webdav.locking.ResourceLocks;
 import net.sf.webdav.testutil.MockTest;
-
 import org.jmock.Expectations;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 
 public class DoDeleteTest extends MockTest {
 
@@ -267,14 +265,7 @@ public class DoDeleteTest extends MockTest {
                 one(mockReq).getHeader("If");
                 will(returnValue(wrongLockToken));
 
-                one(mockRes).setStatus(WebdavStatus.SC_MULTI_STATUS);
-
-                one(mockReq).getRequestURI();
-                will(returnValue("http://foo.bar".concat(lockedFolderPath)));
-
-                one(mockRes).getWriter();
-                will(returnValue(pw));
-
+                one(mockRes).setStatus(WebdavStatus.SC_LOCKED);
             }
         });
 

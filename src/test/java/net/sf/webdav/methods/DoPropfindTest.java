@@ -1,21 +1,15 @@
 package net.sf.webdav.methods;
 
-import java.io.PrintWriter;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.sf.webdav.IMimeTyper;
-import net.sf.webdav.ITransaction;
-import net.sf.webdav.IWebdavStore;
-import net.sf.webdav.StoredObject;
-import net.sf.webdav.WebdavStatus;
+import net.sf.webdav.*;
 import net.sf.webdav.locking.ResourceLocks;
 import net.sf.webdav.testutil.MockTest;
-
 import org.jmock.Expectations;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 
 public class DoPropfindTest extends MockTest {
     static IWebdavStore mockStore;
@@ -73,7 +67,7 @@ public class DoPropfindTest extends MockTest {
                 one(mockRes).getWriter();
                 will(returnValue(printWriter));
 
-                one(mockMimeTyper).getMimeType(path);
+                one(mockMimeTyper).getMimeType(mockTransaction, path);
                 will(returnValue("text/xml; charset=UTF-8"));
 
                 one(mockStore).getStoredObject(mockTransaction, path);
@@ -164,7 +158,7 @@ public class DoPropfindTest extends MockTest {
                 one(mockRes).getWriter();
                 will(returnValue(printWriter));
 
-                one(mockMimeTyper).getMimeType(path);
+                one(mockMimeTyper).getMimeType(mockTransaction, path);
                 will(returnValue("text/xml; charset=UTF-8"));
 
                 one(mockStore).getStoredObject(mockTransaction, path);

@@ -1,23 +1,17 @@
 package net.sf.webdav.methods;
 
-import java.io.ByteArrayInputStream;
-import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.sf.webdav.IMimeTyper;
-import net.sf.webdav.ITransaction;
-import net.sf.webdav.IWebdavStore;
-import net.sf.webdav.StoredObject;
-import net.sf.webdav.WebdavStatus;
+import net.sf.webdav.*;
 import net.sf.webdav.locking.ResourceLocks;
 import net.sf.webdav.testutil.MockTest;
-
 import org.jmock.Expectations;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.mock.web.DelegatingServletInputStream;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.util.Locale;
 
 public class DoGetTest extends MockTest {
 
@@ -26,7 +20,7 @@ public class DoGetTest extends MockTest {
     static HttpServletRequest mockReq;
     static HttpServletResponse mockRes;
     static ITransaction mockTransaction;
-    static TestingOutputStream tos = new TestingOutputStream();;
+    static TestingOutputStream tos = new TestingOutputStream();
     static byte[] resourceContent = new byte[] { '<', 'h', 'e', 'l', 'l', 'o',
             '/', '>' };
     static ByteArrayInputStream bais = new ByteArrayInputStream(resourceContent);
@@ -102,7 +96,7 @@ public class DoGetTest extends MockTest {
                 one(mockRes).addHeader(with(any(String.class)),
                         with(any(String.class)));
 
-                one(mockMimeTyper).getMimeType("/index.html");
+                one(mockMimeTyper).getMimeType(mockTransaction, "/index.html");
                 will(returnValue("text/foo"));
 
                 one(mockRes).setContentType("text/foo");
@@ -254,7 +248,7 @@ public class DoGetTest extends MockTest {
                 one(mockRes).addHeader(with(any(String.class)),
                         with(any(String.class)));
 
-                one(mockMimeTyper).getMimeType("/alternative");
+                one(mockMimeTyper).getMimeType(mockTransaction, "/alternative");
                 will(returnValue("text/foo"));
 
                 one(mockRes).setContentType("text/foo");
