@@ -28,6 +28,8 @@ import java.security.Principal;
 
 import net.sf.webdav.exceptions.WebdavException;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Interface for simple implementation of any store for the WebdavServlet
  * <p>
@@ -41,6 +43,13 @@ public interface IWebdavStore {
      * Life cycle method, called by WebdavServlet's destroy() method. Should be used to clean up resources.
      */
     void destroy();
+
+    /**
+     * Creates a user principal from the request
+     * @param request
+     * @return
+     */
+    Principal createPrincipal(HttpServletRequest request);
 
     /**
      * Indicates that a new request or transaction with this store involved has
