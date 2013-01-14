@@ -414,10 +414,13 @@ public class DoLock extends AbstractMethod {
                     for (int i = 0; i < childList.getLength(); i++) {
                         currentNode = childList.item(i);
 
-                        if (currentNode.getNodeType() == Node.ELEMENT_NODE
-							 || currentNode.getNodeType() == Node.TEXT_NODE) {
+                        if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
+                                                        // word 2010+
 							_lockOwner = currentNode.getFirstChild()
 									.getNodeValue();
+                        } else if (currentNode.getNodeType() == Node.TEXT_NODE) {
+                            // word 2007
+                            _lockOwner = currentNode.getNodeValue();
                         }
                     }
                 }
@@ -522,9 +525,10 @@ public class DoLock extends AbstractMethod {
         generatedXML.writeElement("DAV::depth", XMLWriter.CLOSING);
 
         generatedXML.writeElement("DAV::owner", XMLWriter.OPENING);
-        generatedXML.writeElement("DAV::href", XMLWriter.OPENING);
+        // valid code, but word 2007 can't handle it
+        //generatedXML.writeElement("DAV::href", XMLWriter.OPENING);
         generatedXML.writeText(_lockOwner);
-        generatedXML.writeElement("DAV::href", XMLWriter.CLOSING);
+        //generatedXML.writeElement("DAV::href", XMLWriter.CLOSING);
         generatedXML.writeElement("DAV::owner", XMLWriter.CLOSING);
 
         long timeout = lo.getTimeoutMillis();
