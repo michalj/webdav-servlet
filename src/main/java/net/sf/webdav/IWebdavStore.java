@@ -23,10 +23,11 @@
 
 package net.sf.webdav;
 
+import net.sf.webdav.exceptions.WebdavException;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;
 import java.security.Principal;
-
-import net.sf.webdav.exceptions.WebdavException;
 
 /**
  * Interface for simple implementation of any store for the WebdavServlet
@@ -218,4 +219,5 @@ public interface IWebdavStore {
      */
     StoredObject getStoredObject(ITransaction transaction, String uri);
 
+    Principal createPrincipal(HttpServletRequest request);
 }
