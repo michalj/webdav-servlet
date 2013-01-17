@@ -1,5 +1,6 @@
 package net.sf.webdav;
 
+import net.sf.webdav.exceptions.AccessDeniedException;
 import net.sf.webdav.exceptions.UnauthenticatedException;
 import net.sf.webdav.exceptions.WebdavException;
 import net.sf.webdav.fromcatalina.MD5Encoder;
@@ -45,8 +46,8 @@ public class WebDavServletBean extends HttpServlet {
     protected static final MD5Encoder MD5_ENCODER = new MD5Encoder();
 
     private static final boolean READ_ONLY = false;
-	protected ResourceLocks _resLocks;
-	protected IWebdavStore _store;
+    protected ResourceLocks _resLocks;
+    protected IWebdavStore _store;
     private HashMap<String, IMethodExecutor> _methodMap = new HashMap<String, IMethodExecutor>();
 
     public WebDavServletBean() {
@@ -60,8 +61,8 @@ public class WebDavServletBean extends HttpServlet {
     }
 
     public void init(IWebdavStore store, String dftIndexFile,
-            String insteadOf404, int nocontentLenghHeaders,
-            boolean lazyFolderCreationOnPut) throws ServletException {
+                     String insteadOf404, int nocontentLenghHeaders,
+                     boolean lazyFolderCreationOnPut) throws ServletException {
 
         _store = store;
 
@@ -122,9 +123,6 @@ public class WebDavServletBean extends HttpServlet {
             debugRequest(methodName, req);
 
         try {
-
-
-
             Principal userPrincipal = _store.createPrincipal(req);
             transaction = _store.begin(userPrincipal);
             needRollback = true;
@@ -166,6 +164,9 @@ public class WebDavServletBean extends HttpServlet {
             }
 
         } catch (UnauthenticatedException e) {
+            resp.setHeader("WWW-Authenticate", "Basic realm=\"" + e.getMessage() + "\"");
+            resp.sendError(WebdavStatus.SC_UNAUTHORIZED);
+        } catch (AccessDeniedException e){
             resp.sendError(WebdavStatus.SC_FORBIDDEN);
         } catch (WebdavException e) {
             java.io.StringWriter sw = new java.io.StringWriter();
