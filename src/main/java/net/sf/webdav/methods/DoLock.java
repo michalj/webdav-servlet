@@ -15,15 +15,6 @@
  */
 package net.sf.webdav.methods;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Hashtable;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilder;
-
 import net.sf.webdav.ITransaction;
 import net.sf.webdav.IWebdavStore;
 import net.sf.webdav.StoredObject;
@@ -33,7 +24,6 @@ import net.sf.webdav.exceptions.WebdavException;
 import net.sf.webdav.fromcatalina.XMLWriter;
 import net.sf.webdav.locking.IResourceLocks;
 import net.sf.webdav.locking.LockedObject;
-
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,6 +31,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Hashtable;
 
 public class DoLock extends AbstractMethod {
 
@@ -99,8 +97,7 @@ public class DoLock extends AbstractMethod {
             if (_userAgent != null && _userAgent.indexOf("Darwin") != -1) {
                 _macLockRequest = true;
 
-                String timeString = new Long(System.currentTimeMillis())
-                        .toString();
+                String timeString = Long.toString(System.currentTimeMillis());
                 _lockOwner = _userAgent.concat(timeString);
             }
 
@@ -180,13 +177,16 @@ public class DoLock extends AbstractMethod {
 
         try {
             parentSo = _store.getStoredObject(transaction, _parentPath);
-            if (_parentPath != null && parentSo == null) {
-                _store.createFolder(transaction, _parentPath);
-            } else if (_parentPath != null && parentSo != null
-                    && parentSo.isResource()) {
-                resp.sendError(WebdavStatus.SC_PRECONDITION_FAILED);
-                return;
+
+            if(_parentPath != null){
+                if(parentSo == null){
+                    _store.createFolder(transaction, _parentPath);
+                }else if(parentSo.isResource()){
+                    resp.sendError(WebdavStatus.SC_PRECONDITION_FAILED);
+                                    return;
+                }
             }
+
 
             nullSo = _store.getStoredObject(transaction, _path);
             if (nullSo == null) {
@@ -194,7 +194,7 @@ public class DoLock extends AbstractMethod {
                 _store.createResource(transaction, _path);
 
                 // Transmit expects 204 response-code, not 201
-                if (_userAgent != null && _userAgent.indexOf("Transmit") != -1) {
+                if (_userAgent != null && _userAgent.contains("Transmit")) {
                     LOG
                             .trace("DoLock.execute() : do workaround for user agent '"
                                     + _userAgent + "'");
@@ -414,10 +414,13 @@ public class DoLock extends AbstractMethod {
                     for (int i = 0; i < childList.getLength(); i++) {
                         currentNode = childList.item(i);
 
-                        if (currentNode.getNodeType() == Node.ELEMENT_NODE
-							 || currentNode.getNodeType() == Node.TEXT_NODE) {
+                        if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
+                                                        // word 2010+
 							_lockOwner = currentNode.getFirstChild()
 									.getNodeValue();
+                        } else if (currentNode.getNodeType() == Node.TEXT_NODE) {
+                            // word 2007
+                            _lockOwner = currentNode.getNodeValue();
                         }
                     }
                 }
@@ -458,14 +461,13 @@ public class DoLock extends AbstractMethod {
                 lockDurationStr = lockDurationStr.substring(0, commaPos);
             }
             if (lockDurationStr.startsWith("Second-")) {
-                lockDuration = new Integer(lockDurationStr.substring(7))
-                        .intValue();
+                lockDuration = Integer.parseInt(lockDurationStr.substring(7));
             } else {
                 if (lockDurationStr.equalsIgnoreCase("infinity")) {
                     lockDuration = MAX_TIMEOUT;
                 } else {
                     try {
-                        lockDuration = new Integer(lockDurationStr).intValue();
+                        lockDuration = Integer.parseInt(lockDurationStr);
                     } catch (NumberFormatException e) {
                         lockDuration = MAX_TIMEOUT;
                     }
@@ -522,9 +524,10 @@ public class DoLock extends AbstractMethod {
         generatedXML.writeElement("DAV::depth", XMLWriter.CLOSING);
 
         generatedXML.writeElement("DAV::owner", XMLWriter.OPENING);
-        generatedXML.writeElement("DAV::href", XMLWriter.OPENING);
+        // valid code, but word 2007 can't handle it
+        //generatedXML.writeElement("DAV::href", XMLWriter.OPENING);
         generatedXML.writeText(_lockOwner);
-        generatedXML.writeElement("DAV::href", XMLWriter.CLOSING);
+        //generatedXML.writeElement("DAV::href", XMLWriter.CLOSING);
         generatedXML.writeElement("DAV::owner", XMLWriter.CLOSING);
 
         long timeout = lo.getTimeoutMillis();

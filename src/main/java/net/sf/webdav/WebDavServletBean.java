@@ -1,17 +1,6 @@
 package net.sf.webdav;
 
-import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
-import java.util.Enumeration;
-import java.util.HashMap;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import net.sf.webdav.exceptions.AccessDeniedException;
 import net.sf.webdav.exceptions.UnauthenticatedException;
 import net.sf.webdav.exceptions.WebdavException;
 import net.sf.webdav.fromcatalina.MD5Encoder;
@@ -30,6 +19,17 @@ import net.sf.webdav.methods.DoProppatch;
 import net.sf.webdav.methods.DoPut;
 import net.sf.webdav.methods.DoUnlock;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.util.Enumeration;
+import java.util.HashMap;
+
 public class WebDavServletBean extends HttpServlet {
 
     private static org.slf4j.Logger LOG = org.slf4j.LoggerFactory
@@ -46,8 +46,8 @@ public class WebDavServletBean extends HttpServlet {
     protected static final MD5Encoder MD5_ENCODER = new MD5Encoder();
 
     private static final boolean READ_ONLY = false;
-	protected ResourceLocks _resLocks;
-	protected IWebdavStore _store;
+    protected ResourceLocks _resLocks;
+    protected IWebdavStore _store;
     private HashMap<String, IMethodExecutor> _methodMap = new HashMap<String, IMethodExecutor>();
 
     public WebDavServletBean() {
@@ -61,8 +61,8 @@ public class WebDavServletBean extends HttpServlet {
     }
 
     public void init(IWebdavStore store, String dftIndexFile,
-            String insteadOf404, int nocontentLenghHeaders,
-            boolean lazyFolderCreationOnPut) throws ServletException {
+                     String insteadOf404, int nocontentLenghHeaders,
+                     boolean lazyFolderCreationOnPut) throws ServletException {
 
         _store = store;
 
@@ -123,7 +123,7 @@ public class WebDavServletBean extends HttpServlet {
             debugRequest(methodName, req);
 
         try {
-            Principal userPrincipal = req.getUserPrincipal();
+            Principal userPrincipal = _store.createPrincipal(req);
             transaction = _store.begin(userPrincipal);
             needRollback = true;
             _store.checkAuthentication(transaction);
@@ -164,6 +164,9 @@ public class WebDavServletBean extends HttpServlet {
             }
 
         } catch (UnauthenticatedException e) {
+            resp.setHeader("WWW-Authenticate", "Basic realm=\"" + e.getMessage() + "\"");
+            resp.sendError(WebdavStatus.SC_UNAUTHORIZED);
+        } catch (AccessDeniedException e){
             resp.sendError(WebdavStatus.SC_FORBIDDEN);
         } catch (WebdavException e) {
             java.io.StringWriter sw = new java.io.StringWriter();

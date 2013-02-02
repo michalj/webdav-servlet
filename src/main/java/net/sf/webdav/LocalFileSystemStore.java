@@ -18,7 +18,14 @@ package net.sf.webdav;
 import net.sf.webdav.exceptions.WebdavException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -214,4 +221,5 @@ public class LocalFileSystemStore implements IWebdavStore {
     public Principal createPrincipal(HttpServletRequest request) {
         return request.getUserPrincipal();
     }
+
 }
