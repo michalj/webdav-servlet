@@ -86,7 +86,7 @@ public class WebDavServletBean extends HttpServlet {
                 doDelete, READ_ONLY));
         register("LOCK", new DoLock(store, _resLocks, READ_ONLY));
         register("UNLOCK", new DoUnlock(store, _resLocks, READ_ONLY));
-        register("MOVE", new DoMove(_resLocks, doDelete, doCopy, READ_ONLY));
+        register("MOVE", new DoMove(_resLocks, _store, doDelete, doCopy, READ_ONLY));
         register("MKCOL", new DoMkcol(store, _resLocks, READ_ONLY));
         register("OPTIONS", new DoOptions(store, _resLocks));
         register("PUT", new DoPut(store, _resLocks, READ_ONLY,

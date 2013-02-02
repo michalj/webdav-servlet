@@ -15,19 +15,20 @@
  */
 package net.sf.webdav.methods;
 
-import java.io.IOException;
-import java.util.Hashtable;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import net.sf.webdav.ITransaction;
+import net.sf.webdav.IWebdavStore;
 import net.sf.webdav.WebdavStatus;
 import net.sf.webdav.exceptions.AccessDeniedException;
 import net.sf.webdav.exceptions.LockFailedException;
 import net.sf.webdav.exceptions.ObjectAlreadyExistsException;
 import net.sf.webdav.exceptions.WebdavException;
+import net.sf.webdav.fromcatalina.RequestUtil;
 import net.sf.webdav.locking.ResourceLocks;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Hashtable;
 
 public class DoMove extends AbstractMethod {
 
@@ -35,20 +36,22 @@ public class DoMove extends AbstractMethod {
             .getLogger(DoMove.class);
 
     private ResourceLocks _resourceLocks;
+    private IWebdavStore _store;
     private DoDelete _doDelete;
     private DoCopy _doCopy;
     private boolean _readOnly;
 
-    public DoMove(ResourceLocks resourceLocks, DoDelete doDelete,
-            DoCopy doCopy, boolean readOnly) {
+    public DoMove(ResourceLocks resourceLocks, IWebdavStore store, DoDelete doDelete,
+                  DoCopy doCopy, boolean readOnly) {
         _resourceLocks = resourceLocks;
         _doDelete = doDelete;
         _doCopy = doCopy;
         _readOnly = readOnly;
+        _store = store;
     }
 
     public void execute(ITransaction transaction, HttpServletRequest req,
-            HttpServletResponse resp) throws IOException, LockFailedException {
+                        HttpServletResponse resp) throws IOException, LockFailedException {
 
         if (!_readOnly) {
             LOG.trace("-- " + this.getClass().getName());
@@ -80,16 +83,19 @@ public class DoMove extends AbstractMethod {
                     false, 0, TEMP_TIMEOUT, TEMPORARY)) {
                 try {
 
-                    if (_doCopy.copyResource(transaction, req, resp)) {
+                    if(_store.supportsMoveOperation()){
+                        _store.moveResource(transaction, sourcePath, RequestUtil.parseDestinationPath(req, destinationPath));
+                    }else{
+                        if (_doCopy.copyResource(transaction, req, resp)) {
 
-                        errorList = new Hashtable<String, Integer>();
-                        _doDelete.deleteResource(transaction, sourcePath,
-                                errorList, req, resp);
-                        if (!errorList.isEmpty()) {
-                            sendReport(req, resp, errorList);
+                            errorList = new Hashtable<String, Integer>();
+                            _doDelete.deleteResource(transaction, sourcePath,
+                                    errorList, req, resp);
+                            if (!errorList.isEmpty()) {
+                                sendReport(req, resp, errorList);
+                            }
                         }
                     }
-
                 } catch (AccessDeniedException e) {
                     resp.sendError(WebdavStatus.SC_FORBIDDEN);
                 } catch (ObjectAlreadyExistsException e) {

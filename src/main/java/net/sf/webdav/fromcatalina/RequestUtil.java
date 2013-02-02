@@ -16,12 +16,12 @@
 
 package net.sf.webdav.fromcatalina;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.TimeZone;
-
-import javax.servlet.http.Cookie;
 
 /**
  * General purpose request parsing and encoding utility methods.
@@ -507,4 +507,62 @@ public final class RequestUtil {
 
     }
 
+    public static String parseDestinationPath(HttpServletRequest req,
+                                          String destinationPath) throws IOException {
+
+        // Remove url encoding from destination
+        destinationPath = RequestUtil.URLDecode(destinationPath, "UTF8");
+
+        int protocolIndex = destinationPath.indexOf("://");
+        if (protocolIndex >= 0) {
+            // if the Destination URL contains the protocol, we can safely
+            // trim everything upto the first "/" character after "://"
+            int firstSeparator = destinationPath
+                    .indexOf("/", protocolIndex + 4);
+            if (firstSeparator < 0) {
+                destinationPath = "/";
+            } else {
+                destinationPath = destinationPath.substring(firstSeparator);
+            }
+        } else {
+            String hostName = req.getServerName();
+            if ((hostName != null) && (destinationPath.startsWith(hostName))) {
+                destinationPath = destinationPath.substring(hostName.length());
+            }
+
+            int portIndex = destinationPath.indexOf(":");
+            if (portIndex >= 0) {
+                destinationPath = destinationPath.substring(portIndex);
+            }
+
+            if (destinationPath.startsWith(":")) {
+                int firstSeparator = destinationPath.indexOf("/");
+                if (firstSeparator < 0) {
+                    destinationPath = "/";
+                } else {
+                    destinationPath = destinationPath.substring(firstSeparator);
+                }
+            }
+        }
+
+        // Normalize destination path (remove '.' and' ..')
+        destinationPath = normalize(destinationPath);
+
+        String contextPath = req.getContextPath();
+        if ((contextPath != null) && (destinationPath.startsWith(contextPath))) {
+            destinationPath = destinationPath.substring(contextPath.length());
+        }
+
+        String pathInfo = req.getPathInfo();
+        if (pathInfo != null) {
+            String servletPath = req.getServletPath();
+            if ((servletPath != null)
+                    && (destinationPath.startsWith(servletPath))) {
+                destinationPath = destinationPath.substring(servletPath
+                        .length());
+            }
+        }
+
+        return destinationPath;
+    }
 }

@@ -219,5 +219,21 @@ public interface IWebdavStore {
      */
     StoredObject getStoredObject(ITransaction transaction, String uri);
 
+    /**
+     * Creates a principal object from the request
+     *
+     * @param request
+     *      HTTPServletRequest
+     * @return principal
+     */
     Principal createPrincipal(HttpServletRequest request);
+
+    /**
+     * Checks if this store supports atomic move operation
+     *
+     * @return true if move operation is supported
+     */
+    boolean supportsMoveOperation();
+
+    void moveResource(ITransaction transaction, String sourceUri, String destinationUri);
 }

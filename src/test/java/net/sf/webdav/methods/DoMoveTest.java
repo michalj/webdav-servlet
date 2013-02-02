@@ -1,21 +1,19 @@
 package net.sf.webdav.methods;
 
-import java.io.ByteArrayInputStream;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import net.sf.webdav.ITransaction;
 import net.sf.webdav.IWebdavStore;
 import net.sf.webdav.StoredObject;
 import net.sf.webdav.WebdavStatus;
 import net.sf.webdav.locking.ResourceLocks;
 import net.sf.webdav.testutil.MockTest;
-
 import org.jmock.Expectations;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.mock.web.DelegatingServletInputStream;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
 
 public class DoMoveTest extends MockTest {
 
@@ -60,7 +58,7 @@ public class DoMoveTest extends MockTest {
         DoDelete doDelete = new DoDelete(mockStore, resLocks, readOnly);
         DoCopy doCopy = new DoCopy(mockStore, resLocks, doDelete, readOnly);
 
-        DoMove doMove = new DoMove(resLocks, doDelete, doCopy, readOnly);
+        DoMove doMove = new DoMove(resLocks, mockStore, doDelete, doCopy, readOnly);
 
         doMove.execute(mockTransaction, mockReq, mockRes);
 
@@ -101,6 +99,9 @@ public class DoMoveTest extends MockTest {
 
                 one(mockReq).getHeader("Overwrite");
                 will(returnValue("F"));
+
+                one(mockStore).supportsMoveOperation();
+                will(returnValue(false));
 
                 StoredObject sourceFileSo = initFileStoredObject(resourceContent);
 
@@ -145,7 +146,7 @@ public class DoMoveTest extends MockTest {
         DoDelete doDelete = new DoDelete(mockStore, resLocks, !readOnly);
         DoCopy doCopy = new DoCopy(mockStore, resLocks, doDelete, !readOnly);
 
-        DoMove doMove = new DoMove(resLocks, doDelete, doCopy, !readOnly);
+        DoMove doMove = new DoMove(resLocks, mockStore, doDelete, doCopy, !readOnly);
 
         doMove.execute(mockTransaction, mockReq, mockRes);
 
@@ -190,6 +191,9 @@ public class DoMoveTest extends MockTest {
 
                 StoredObject sourceFileSo = initFileStoredObject(resourceContent);
 
+                one(mockStore).supportsMoveOperation();
+                will(returnValue(false));
+
                 one(mockStore).getStoredObject(mockTransaction, sourceFilePath);
                 will(returnValue(sourceFileSo));
 
@@ -207,7 +211,7 @@ public class DoMoveTest extends MockTest {
         DoDelete doDelete = new DoDelete(mockStore, resLocks, !readOnly);
         DoCopy doCopy = new DoCopy(mockStore, resLocks, doDelete, !readOnly);
 
-        DoMove doMove = new DoMove(resLocks, doDelete, doCopy, !readOnly);
+        DoMove doMove = new DoMove(resLocks, mockStore, doDelete, doCopy, !readOnly);
 
         doMove.execute(mockTransaction, mockReq, mockRes);
 
@@ -255,6 +259,9 @@ public class DoMoveTest extends MockTest {
                 one(mockStore).getStoredObject(mockTransaction, sourceFilePath);
                 will(returnValue(sourceFileSo));
 
+                one(mockStore).supportsMoveOperation();
+                will(returnValue(false));
+
                 StoredObject destFileSo = initFileStoredObject(resourceContent);
 
                 one(mockStore).getStoredObject(mockTransaction, destFilePath);
@@ -296,7 +303,7 @@ public class DoMoveTest extends MockTest {
         DoDelete doDelete = new DoDelete(mockStore, resLocks, !readOnly);
         DoCopy doCopy = new DoCopy(mockStore, resLocks, doDelete, !readOnly);
 
-        DoMove doMove = new DoMove(resLocks, doDelete, doCopy, !readOnly);
+        DoMove doMove = new DoMove(resLocks, mockStore, doDelete, doCopy, !readOnly);
 
         doMove.execute(mockTransaction, mockReq, mockRes);
 
@@ -338,6 +345,9 @@ public class DoMoveTest extends MockTest {
                 one(mockReq).getHeader("Overwrite");
                 will(returnValue("F"));
 
+                one(mockStore).supportsMoveOperation();
+                will(returnValue(false));
+
                 StoredObject sourceFileSo = null;
 
                 one(mockStore).getStoredObject(mockTransaction, sourceFilePath);
@@ -351,7 +361,7 @@ public class DoMoveTest extends MockTest {
         DoDelete doDelete = new DoDelete(mockStore, resLocks, !readOnly);
         DoCopy doCopy = new DoCopy(mockStore, resLocks, doDelete, !readOnly);
 
-        DoMove doMove = new DoMove(resLocks, doDelete, doCopy, !readOnly);
+        DoMove doMove = new DoMove(resLocks, mockStore, doDelete, doCopy, !readOnly);
 
         doMove.execute(mockTransaction, mockReq, mockRes);
 
@@ -371,6 +381,9 @@ public class DoMoveTest extends MockTest {
 
                 exactly(2).of(mockReq).getHeader("Destination");
                 will(returnValue(destFilePath));
+
+                one(mockStore).supportsMoveOperation();
+                will(returnValue(false));
 
                 one(mockReq).getServerName();
                 will(returnValue("server_name"));
@@ -398,7 +411,7 @@ public class DoMoveTest extends MockTest {
         DoDelete doDelete = new DoDelete(mockStore, resLocks, !readOnly);
         DoCopy doCopy = new DoCopy(mockStore, resLocks, doDelete, !readOnly);
 
-        DoMove doMove = new DoMove(resLocks, doDelete, doCopy, !readOnly);
+        DoMove doMove = new DoMove(resLocks, mockStore, doDelete, doCopy, !readOnly);
 
         doMove.execute(mockTransaction, mockReq, mockRes);
 
@@ -440,6 +453,9 @@ public class DoMoveTest extends MockTest {
 
                 one(mockReq).getHeader("Overwrite");
                 will(returnValue("F"));
+
+                one(mockStore).supportsMoveOperation();
+                will(returnValue(false));
 
                 StoredObject sourceCollectionSo = initFolderStoredObject();
 
@@ -520,7 +536,7 @@ public class DoMoveTest extends MockTest {
         DoDelete doDelete = new DoDelete(mockStore, resLocks, !readOnly);
         DoCopy doCopy = new DoCopy(mockStore, resLocks, doDelete, !readOnly);
 
-        DoMove doMove = new DoMove(resLocks, doDelete, doCopy, !readOnly);
+        DoMove doMove = new DoMove(resLocks, mockStore, doDelete, doCopy, !readOnly);
 
         doMove.execute(mockTransaction, mockReq, mockRes);
 
@@ -563,6 +579,9 @@ public class DoMoveTest extends MockTest {
                 one(mockReq).getHeader("Overwrite");
                 will(returnValue("F"));
 
+                one(mockStore).supportsMoveOperation();
+                will(returnValue(false));
+
                 StoredObject sourceCollectionSo = initFolderStoredObject();
 
                 one(mockStore).getStoredObject(mockTransaction,
@@ -583,7 +602,7 @@ public class DoMoveTest extends MockTest {
         DoDelete doDelete = new DoDelete(mockStore, resLocks, !readOnly);
         DoCopy doCopy = new DoCopy(mockStore, resLocks, doDelete, !readOnly);
 
-        DoMove doMove = new DoMove(resLocks, doDelete, doCopy, !readOnly);
+        DoMove doMove = new DoMove(resLocks, mockStore, doDelete, doCopy, !readOnly);
 
         doMove.execute(mockTransaction, mockReq, mockRes);
 
@@ -625,6 +644,9 @@ public class DoMoveTest extends MockTest {
 
                 one(mockReq).getHeader("Overwrite");
                 will(returnValue("T"));
+
+                one(mockStore).supportsMoveOperation();
+                will(returnValue(false));
 
                 StoredObject sourceCollectionSo = initFolderStoredObject();
 
@@ -716,7 +738,7 @@ public class DoMoveTest extends MockTest {
         DoDelete doDelete = new DoDelete(mockStore, resLocks, !readOnly);
         DoCopy doCopy = new DoCopy(mockStore, resLocks, doDelete, !readOnly);
 
-        DoMove doMove = new DoMove(resLocks, doDelete, doCopy, !readOnly);
+        DoMove doMove = new DoMove(resLocks, mockStore, doDelete, doCopy, !readOnly);
 
         doMove.execute(mockTransaction, mockReq, mockRes);
 

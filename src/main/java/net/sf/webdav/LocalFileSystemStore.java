@@ -222,4 +222,13 @@ public class LocalFileSystemStore implements IWebdavStore {
         return request.getUserPrincipal();
     }
 
+    @Override
+    public boolean supportsMoveOperation() {
+        return false;
+    }
+
+    @Override
+    public void moveResource(ITransaction transaction, String sourceUri, String destinationUri) {
+        throw new UnsupportedOperationException("Move operation is not supported in the LocalFileSystemStore");
+    }
 }
