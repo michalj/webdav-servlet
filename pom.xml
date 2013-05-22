@@ -3,14 +3,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>WebDAV servlet</name>
-    <groupId>net.sf.webdav</groupId>
+    <groupId>com.iviews.external</groupId>
     <artifactId>webdav-servlet</artifactId>
     <version>2.0.4-SNAPSHOT</version>
     <inceptionYear>2011</inceptionYear>
+    <description>Modified version of the net.sf.webdav-servlet:webdav-servlet imported from github (ifunsoftware)</description>
 
     <scm>
-        <connection>scm:git:https://github.com/ifunsoftware/webdav-servlet.git</connection>
-        <url>https://github.com/ifunsoftware/webdav-servlet</url>
+        <connection>scm:git:https://github.com/nknapp/webdav-servlet.git</connection>
+        <url>https://github.com/nknapp/webdav-servlet</url>
     </scm>
 
     <properties>
@@ -96,30 +97,16 @@
 
     </build>
 
-    <repositories>
-        <repository>
-            <id>libs-release</id>
-            <name>iFunSoftware release repository</name>
-            <url>http://repository.ifunsoftware.com/artifactory/libs-release</url>
-        </repository>
-
-        <repository>
-            <id>libs-snapshot</id>
-            <name>iFunSoftware snapshot repository</name>
-            <url>http://repository.ifunsoftware.com/artifactory/libs-snapshot</url>
-        </repository>
-    </repositories>
-
     <distributionManagement>
         <repository>
-            <id>ifunsoftware</id>
-            <name>iFunSoftware release repository</name>
-            <url>http://repository-ifunsoftware.rhcloud.com/content/repositories/releases/</url>
+            <id>iviews-releases</id>
+            <name>iviews-releases-local</name>
+            <url>${iviews.baseUrl.repo}/libs-releases-local</url>
         </repository>
         <snapshotRepository>
-            <id>ifunsoftware-snap</id>
-            <name>iFunSoftware snapshot repository</name>
-            <url>http://repository-ifunsoftware.rhcloud.com/content/repositories/snapshots/</url>
+            <id>iviews-snapshots</id>
+            <name>iviews-snapshots-local</name>
+            <url>${iviews.baseUrl.repo}/libs-snapshots-local</url>
         </snapshotRepository>
     </distributionManagement>
 
