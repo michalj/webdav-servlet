@@ -29,7 +29,7 @@ public class LockedObject {
     /**
      * Describing the timeout of a locked object (ms)
      */
-    protected long _expiresAt;
+    protected volatile long _expiresAt;
 
     /**
      * owner of the lock. shared locks can have multiple owners. is null if no
