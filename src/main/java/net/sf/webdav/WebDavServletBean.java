@@ -52,8 +52,6 @@ public class WebDavServletBean extends HttpServlet {
     private final HashMap<String, IMethodExecutor> _methodMap = new HashMap<String, IMethodExecutor>();
 
     public WebDavServletBean() {
-        _resLocks = new ResourceLocks();
-
         try {
             MD5_HELPER = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
@@ -67,6 +65,9 @@ public class WebDavServletBean extends HttpServlet {
 
         _store = store;
         _lockingListener = lockingListener;
+
+        _resLocks = new ResourceLocks(_lockingListener);
+
 
         IMimeTyper mimeTyper = new IMimeTyper() {
             @Override

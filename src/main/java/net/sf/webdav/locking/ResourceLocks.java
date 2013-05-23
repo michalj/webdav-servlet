@@ -19,6 +19,7 @@ package net.sf.webdav.locking;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import net.sf.webdav.ILockingListener;
 import net.sf.webdav.ITransaction;
 import net.sf.webdav.exceptions.LockFailedException;
 
@@ -63,6 +64,8 @@ public class ResourceLocks implements IResourceLocks {
      */
     protected Hashtable<String, LockedObject> _tempLocksByID = new Hashtable<String, LockedObject>();
 
+    private ILockingListener _lockingListener;
+
     // REMEMBER TO REMOVE UNUSED LOCKS FROM THE HASHTABLE AS WELL
 
     protected LockedObject _root = null;
@@ -71,9 +74,14 @@ public class ResourceLocks implements IResourceLocks {
 
     private boolean _temporary = true;
 
+    public ResourceLocks(ILockingListener lockingListener) {
+        _lockingListener = lockingListener;
+        _root = new LockedObject(this, "/", true, _lockingListener);
+        _tempRoot = new LockedObject(this, "/", false, _lockingListener);
+    }
+
     public ResourceLocks() {
-        _root = new LockedObject(this, "/", true);
-        _tempRoot = new LockedObject(this, "/", false);
+        this(null);
     }
 
     public synchronized boolean lock(ITransaction transaction, String path,
@@ -131,9 +139,9 @@ public class ResourceLocks implements IResourceLocks {
                 LockedObject lo = _locks.get(path);
                 lo.removeLockedObjectOwner(owner);
 
-                if (lo._children == null && lo._owner == null)
-                    lo.removeLockedObject();
-
+                if (lo._children == null && lo._owner == null) {
+                    lo.removeLockedObject(transaction);
+                }
             } else {
                 // there is no lock at that path. someone tried to unlock it
                 // anyway. could point to a problem
@@ -184,7 +192,7 @@ public class ResourceLocks implements IResourceLocks {
                 LockedObject currentLockedObject = lockedObjects.nextElement();
 
                 if (currentLockedObject._expiresAt < System.currentTimeMillis()) {
-                    currentLockedObject.removeLockedObject();
+                    currentLockedObject.removeLockedObject(transaction);
                 }
             }
         } else {
@@ -197,7 +205,6 @@ public class ResourceLocks implements IResourceLocks {
                 }
             }
         }
-
     }
 
     public boolean exclusiveLock(ITransaction transaction, String path,
@@ -257,8 +264,11 @@ public class ResourceLocks implements IResourceLocks {
     private LockedObject generateLockedObjects(ITransaction transaction,
             String path) {
         if (!_locks.containsKey(path)) {
+            if (_lockingListener != null) {
+                _lockingListener.onLockResource(transaction,path);
+            }
             LockedObject returnObject = new LockedObject(this, path,
-                    !_temporary);
+                    !_temporary, _lockingListener);
             String parentPath = getParentPath(path);
             if (parentPath != null) {
                 LockedObject parentLockedObject = generateLockedObjects(
@@ -286,7 +296,7 @@ public class ResourceLocks implements IResourceLocks {
     private LockedObject generateTempLockedObjects(ITransaction transaction,
             String path) {
         if (!_tempLocks.containsKey(path)) {
-            LockedObject returnObject = new LockedObject(this, path, _temporary);
+            LockedObject returnObject = new LockedObject(this, path, _temporary, _lockingListener);
             String parentPath = getParentPath(path);
             if (parentPath != null) {
                 LockedObject parentLockedObject = generateTempLockedObjects(
@@ -322,7 +332,7 @@ public class ResourceLocks implements IResourceLocks {
                 if (temporary) {
                     lo.removeTempLockedObject();
                 } else {
-                    lo.removeLockedObject();
+                    lo.removeLockedObject(transaction);
                 }
 
                 return true;
@@ -347,7 +357,7 @@ public class ResourceLocks implements IResourceLocks {
                     if (temporary) {
                         lo.removeTempLockedObject();
                     } else {
-                        lo.removeLockedObject();
+                        lo.removeLockedObject(transaction);
                     }
                     return true;
                 } else {

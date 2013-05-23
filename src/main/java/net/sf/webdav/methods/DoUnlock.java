@@ -80,10 +80,6 @@ public class DoUnlock extends DeterminableMethod {
                                 _store.removeObject(transaction, path);
                             }
                             
-                            if (_lockingListener != null) {
-                            	_lockingListener.onUnlockResource(transaction, path);
-                            }
-
                             resp.setStatus(WebdavStatus.SC_NO_CONTENT);
                         } else {
                             LOG.trace("DoUnlock failure at " + lo.getPath());

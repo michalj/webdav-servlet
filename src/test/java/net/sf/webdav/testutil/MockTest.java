@@ -124,7 +124,7 @@ public abstract class MockTest {
     public static LockedObject initLockNullLockedObject(ResourceLocks resLocks,
             String path) {
 
-        LockedObject lo = new LockedObject(resLocks, path, false);
+        LockedObject lo = new LockedObject(resLocks, path, false, null);
         lo.setExclusive(true);
 
         return lo;

@@ -301,10 +301,6 @@ public class DoLock extends AbstractMethod {
                             transaction, _path);
                     if (lo != null) {
                         generateXMLReport(transaction, resp, lo);
-                        
-                        if (_lockingListener != null) {
-                        	_lockingListener.onLockResource(transaction, _path);
-                        }
                     } else {
                         resp.sendError(WebdavStatus.SC_INTERNAL_SERVER_ERROR);
                     }

@@ -51,7 +51,7 @@ public class DoLockTest extends MockTest {
             }
         });
 
-        ResourceLocks resLocks = new ResourceLocks();
+        ResourceLocks resLocks = new ResourceLocks(null);
 
         DoLock doLock = new DoLock(mockStore, null, resLocks, readOnly);
         doLock.execute(mockTransaction, mockReq, mockRes);
@@ -65,7 +65,7 @@ public class DoLockTest extends MockTest {
         final String lockPath = "/aFileToLock";
         final String lockOwner = "owner";
 
-        ResourceLocks resLocks = new ResourceLocks();
+        ResourceLocks resLocks = new ResourceLocks(null);
         resLocks.lock(mockTransaction, lockPath, lockOwner, exclusive, depth,
                 TEMP_TIMEOUT, !TEMPORARY);
 
@@ -121,7 +121,7 @@ public class DoLockTest extends MockTest {
 
         final String lockPath = "/aFileToLock";
 
-        ResourceLocks resLocks = new ResourceLocks();
+        ResourceLocks resLocks = new ResourceLocks(null);
         final PrintWriter pw = new PrintWriter("/tmp/XMLTestFile");
 
         final ByteArrayInputStream baisExclusive = new ByteArrayInputStream(
@@ -181,7 +181,7 @@ public class DoLockTest extends MockTest {
 
         final String lockPath = "/aFileToLock";
 
-        ResourceLocks resLocks = new ResourceLocks();
+        ResourceLocks resLocks = new ResourceLocks(null);
         final PrintWriter pw = new PrintWriter("/tmp/XMLTestFile");
 
         final ByteArrayInputStream baisShared = new ByteArrayInputStream(
@@ -241,7 +241,7 @@ public class DoLockTest extends MockTest {
 
         final String lockPath = "/aFolderToLock";
 
-        ResourceLocks resLocks = new ResourceLocks();
+        ResourceLocks resLocks = new ResourceLocks(null);
 
         final PrintWriter pw = new PrintWriter("/tmp/XMLTestFile");
 
@@ -302,7 +302,7 @@ public class DoLockTest extends MockTest {
 
         final String lockPath = "/aFolderToLock";
 
-        ResourceLocks resLocks = new ResourceLocks();
+        ResourceLocks resLocks = new ResourceLocks(null);
         final PrintWriter pw = new PrintWriter("/tmp/XMLTestFile");
 
         final ByteArrayInputStream baisShared = new ByteArrayInputStream(

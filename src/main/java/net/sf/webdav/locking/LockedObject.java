@@ -2,6 +2,9 @@ package net.sf.webdav.locking;
 
 import java.util.UUID;
 
+import net.sf.webdav.ILockingListener;
+import net.sf.webdav.ITransaction;
+
 /**
  * a helper class for ResourceLocks, represents the Locks
  * 
@@ -13,6 +16,7 @@ public class LockedObject {
     private ResourceLocks _resourceLocks;
 
     private String _path;
+    private final ILockingListener _lockingListener;
 
     private String _id;
 
@@ -53,17 +57,16 @@ public class LockedObject {
     protected String _type = null;
 
     /**
-     * @param _resourceLocks
-     *      the resourceLocks where locks are stored
      * @param path
      *      the path to the locked object
      * @param temporary
-     *      indicates if the LockedObject should be temporary or not
+     * @param lockingListener
      */
-    public LockedObject(ResourceLocks resLocks, String path, boolean temporary) {
+    public LockedObject(ResourceLocks resLocks, String path, boolean temporary, ILockingListener lockingListener) {
         _path = path;
         _id = UUID.randomUUID().toString();
         _resourceLocks = resLocks;
+        _lockingListener = lockingListener;
 
         if (!temporary) {
             _resourceLocks._locks.put(path, this);
@@ -165,9 +168,10 @@ public class LockedObject {
     /**
      * deletes this Lock object. assumes that it has no children and no owners
      * (does not check this itself)
-     * 
+     *
+     * @param transaction
      */
-    public void removeLockedObject() {
+    public void removeLockedObject(ITransaction transaction) {
         if (this != _resourceLocks._root && !this.getPath().equals("/")) {
 
             int size = _parent._children.length;
@@ -193,6 +197,9 @@ public class LockedObject {
             // removing from hashtable
             _resourceLocks._locksByID.remove(getID());
             _resourceLocks._locks.remove(getPath());
+            if (_lockingListener!=null) {
+                _lockingListener.onUnlockResource(transaction, getPath());
+            }
 
             // now the garbage collector has some work to do
         }
@@ -418,5 +425,6 @@ public class LockedObject {
     public int getLockDepth() {
         return _lockDepth;
     }
+
 
 }
