@@ -66,7 +66,7 @@ public class WebDavServletBean extends HttpServlet {
         _store = store;
         _lockingListener = lockingListener;
 
-        _resLocks = new ResourceLocks(_lockingListener);
+        _resLocks = createResourceLocks(_lockingListener);
 
 
         IMimeTyper mimeTyper = new IMimeTyper() {
@@ -98,6 +98,15 @@ public class WebDavServletBean extends HttpServlet {
         register("PROPFIND", new DoPropfind(store, _resLocks, mimeTyper));
         register("PROPPATCH", new DoProppatch(store, _resLocks, READ_ONLY));
         register("*NO*IMPL*", new DoNotImplemented(READ_ONLY));
+    }
+
+    /**
+     * This method can be overridden to inject alternative resource lock implementations
+     * @param lockingListener
+     * @return
+     */
+    protected ResourceLocks createResourceLocks(ILockingListener lockingListener) {
+        return new ResourceLocks(lockingListener);
     }
 
     @Override
