@@ -10,8 +10,8 @@
     <description>Modified version of the net.sf.webdav-servlet:webdav-servlet imported from github (ifunsoftware)</description>
 
     <scm>
-        <connection>scm:git:https://github.com/nknapp/webdav-servlet.git</connection>
-        <url>https://github.com/nknapp/webdav-servlet</url>
+        <connection>scm:git:https://github.com/michalj/webdav-servlet.git</connection>
+        <url>https://github.com/michalj/webdav-servlet</url>
     </scm>
 
     <properties>
@@ -98,15 +98,10 @@
 
     <distributionManagement>
         <repository>
-            <id>iviews-releases</id>
-            <name>iviews-releases-local</name>
-            <url>${iviews.baseUrl.repo}/libs-releases-local</url>
+            <id>semantiq</id>
+            <name>Semantiq Repository</name>
+            <url>http://maven.semantiq.eu/releases</url>
         </repository>
-        <snapshotRepository>
-            <id>iviews-snapshots</id>
-            <name>iviews-snapshots-local</name>
-            <url>${iviews.baseUrl.repo}/libs-snapshots-local</url>
-        </snapshotRepository>
     </distributionManagement>
 
 </project>
